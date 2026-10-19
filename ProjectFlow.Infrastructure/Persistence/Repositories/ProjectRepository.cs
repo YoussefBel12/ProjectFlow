@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using ProjectFlow.Application.Common.Interfaces;
 using ProjectFlow.Domain.Entities;
 
 namespace ProjectFlow.Infrastructure.Persistence.Repositories
 {
-   
+
+
 
     public class ProjectRepository : IProjectRepository
     {
@@ -23,7 +25,52 @@ namespace ProjectFlow.Infrastructure.Persistence.Repositories
             Project project,
             CancellationToken cancellationToken)
         {
-            await _context.Projects.AddAsync(project, cancellationToken);
+            await _context.Projects.AddAsync(
+                project,
+                cancellationToken);
         }
+
+        public async Task<Project?> GetByIdAsync(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            return await _context.Projects
+                .FirstOrDefaultAsync(
+                    project => project.Id == id,
+                    cancellationToken);
+        }
+
+
+        public async Task AddWorkItemAsync(
+    WorkItem workItem,
+    CancellationToken cancellationToken)
+        {
+            await _context.WorkItems.AddAsync(workItem, cancellationToken);
+        }
+
+
+
+        public async Task<IReadOnlyList<WorkItem>> GetByProjectIdAsync(
+            Guid projectId,
+            CancellationToken cancellationToken)
+        {
+            return await _context.WorkItems
+                .AsNoTracking()
+                .Where(workItem => workItem.ProjectId == projectId)
+                .OrderBy(workItem => workItem.CreatedAtUtc)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<WorkItem?> GetWorkItemByIdAsync(
+    Guid id,
+    CancellationToken cancellationToken)
+        {
+            return await _context.WorkItems
+                
+                .FirstOrDefaultAsync(
+                    workItem => workItem.Id == id,
+                    cancellationToken);
+        }
+
     }
 }
