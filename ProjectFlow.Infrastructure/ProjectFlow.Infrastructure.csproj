@@ -18,7 +18,13 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup>
+
+
+	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+
+	<ItemGroup>
     <ProjectReference Include="..\ProjectFlow.Application\ProjectFlow.Application.csproj" />
     <ProjectReference Include="..\ProjectFlow.Domain\ProjectFlow.Domain.csproj" />
   </ItemGroup>
