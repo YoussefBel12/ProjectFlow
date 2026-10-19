@@ -7,7 +7,7 @@ using ProjectFlow.Application.Features.Projects.Commands.DeleteProject;
 using ProjectFlow.Application.Features.Projects.Commands.UpdateProject;
 using ProjectFlow.Application.Features.Projects.Queries.GetProjectById;
 using ProjectFlow.Application.Features.Projects.Queries.GetProjects;
-
+using Microsoft.AspNetCore.Authorization;
 namespace ProjectFlow.Api.Controllers
 {
    
@@ -22,7 +22,7 @@ namespace ProjectFlow.Api.Controllers
         {
             _sender = sender;
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Create(
             CreateProjectRequest request,

@@ -1,8 +1,11 @@
 ﻿
+
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ProjectFlow.Application.Common.Interfaces;
+using ProjectFlow.Infrastructure.Identity;
 using ProjectFlow.Infrastructure.Persistence;
 using ProjectFlow.Infrastructure.Persistence.Repositories;
 using ProjectFlow.Infrastructure.Tenancy;
@@ -36,18 +39,28 @@ namespace ProjectFlow.Infrastructure
                 options.UseSqlServer(
                     configuration.GetConnectionString("CatalogConnection")));
 
+
+
+            services.AddDbContext<IdentityDbContext>(options =>
+    options.UseSqlServer(
+        configuration.GetConnectionString("IdentityConnection")));
+
+            services.AddIdentityCore<ApplicationUser>()
+    .AddRoles<IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<IdentityDbContext>();
+
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+            services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<ITenantStore, TenantStore>();
             services.AddScoped<
                 ITenantDatabaseProvisioner,
                 TenantDatabaseProvisioner>();
-
+            services.AddScoped<IWorkItemCommentRepository, WorkItemCommentRepository>();
             services.AddScoped<
                 ITenantDatabaseInitializer,
                 TenantDatabaseInitializer>();
-
+            services.AddScoped<IProjectMemberRepository, ProjectMemberRepository>();
             services.AddScoped<ITenantContext, TenantContext>();
 
             return services;
