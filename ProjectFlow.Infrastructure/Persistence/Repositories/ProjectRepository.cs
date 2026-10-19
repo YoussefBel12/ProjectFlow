@@ -72,5 +72,16 @@ namespace ProjectFlow.Infrastructure.Persistence.Repositories
                     cancellationToken);
         }
 
+
+        public void RemoveWorkItem(WorkItem workItem)
+        {
+            _context.WorkItems.Remove(workItem);
+        }
+
+        public void RemoveProject(Project project)
+        {
+            _context.Projects.Remove(project);
+        }
+
     }
 }

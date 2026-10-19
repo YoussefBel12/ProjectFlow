@@ -34,7 +34,9 @@ namespace ProjectFlow.Application.Common.Interfaces
     Guid id,
     CancellationToken cancellationToken);
 
+        void RemoveWorkItem(WorkItem workItem);
 
+        void RemoveProject(Project project);
 
     }
 

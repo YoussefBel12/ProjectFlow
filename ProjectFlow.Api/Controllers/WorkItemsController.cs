@@ -2,10 +2,14 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ProjectFlow.Api.Contracts.WorkItems;
+using ProjectFlow.Application.Features.WorkItems.Commands.ChangeWorkItemPriority;
+using ProjectFlow.Application.Features.WorkItems.Commands.ChangeWorkItemStatus;
 using ProjectFlow.Application.Features.WorkItems.Commands.CreateWorkItem;
+using ProjectFlow.Application.Features.WorkItems.Commands.DeleteWorkItem;
 using ProjectFlow.Application.Features.WorkItems.Commands.UpdateWorkItem;
 using ProjectFlow.Application.Features.WorkItems.Queries.GetWorkItemById;
 using ProjectFlow.Application.Features.WorkItems.Queries.GetWorkItemsByProject;
+using ProjectFlow.Domain.Enums;
 namespace ProjectFlow.Api.Controllers
 {
 
@@ -119,6 +123,72 @@ namespace ProjectFlow.Api.Controllers
 
             return NoContent();
         }
+
+
+
+        [HttpPatch("{id:guid}/status")]
+        public async Task<IActionResult> ChangeStatus(
+            Guid id,
+            ChangeWorkItemStatusRequest request,
+            CancellationToken cancellationToken)
+        {
+            if (!Enum.IsDefined(typeof(WorkItemStatus), request.Status))
+                return BadRequest("Invalid work item status.");
+
+            var command = new ChangeWorkItemStatusCommand(
+                id,
+                (WorkItemStatus)request.Status);
+
+            var updated = await _sender.Send(
+                command,
+                cancellationToken);
+
+            if (!updated)
+                return NotFound();
+
+            return NoContent();
+        }
+
+
+        [HttpPatch("{id:guid}/priority")]
+        public async Task<IActionResult> ChangePriority(
+    Guid id,
+    ChangeWorkItemPriorityRequest request,
+    CancellationToken cancellationToken)
+        {
+            if (!Enum.IsDefined(typeof(WorkItemPriority), request.Priority))
+                return BadRequest("Invalid work item priority.");
+
+            var command = new ChangeWorkItemPriorityCommand(
+                id,
+                (WorkItemPriority)request.Priority);
+
+            var updated = await _sender.Send(command, cancellationToken);
+
+            if (!updated)
+                return NotFound();
+
+            return NoContent();
+        }
+
+
+
+        [HttpDelete("{id:guid}")]
+        public async Task<IActionResult> Delete(
+    Guid id,
+    CancellationToken cancellationToken)
+        {
+            var deleted = await _sender.Send(
+                new DeleteWorkItemCommand(id),
+                cancellationToken);
+
+            if (!deleted)
+                return NotFound();
+
+            return NoContent();
+        }
+
+
 
 
 
