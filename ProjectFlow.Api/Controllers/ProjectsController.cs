@@ -6,6 +6,7 @@ using ProjectFlow.Application.Features.Projects.Commands.CreateProject;
 using ProjectFlow.Application.Features.Projects.Commands.DeleteProject;
 using ProjectFlow.Application.Features.Projects.Commands.UpdateProject;
 using ProjectFlow.Application.Features.Projects.Queries.GetProjectById;
+using ProjectFlow.Application.Features.Projects.Queries.GetProjects;
 
 namespace ProjectFlow.Api.Controllers
 {
@@ -98,7 +99,24 @@ namespace ProjectFlow.Api.Controllers
             return Ok(response);
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAll(
+    CancellationToken cancellationToken)
+        {
+            var projects = await _sender.Send(
+                new GetProjectsQuery(),
+                cancellationToken);
 
+            var response = projects.Select(project => new ProjectResponse(
+                project.Id,
+                project.Name,
+                project.Description,
+                project.DueDateUtc,
+                project.CreatedAtUtc,
+                project.UpdatedAtUtc));
+
+            return Ok(response);
+        }
 
 
 

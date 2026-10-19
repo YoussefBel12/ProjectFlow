@@ -38,6 +38,12 @@ namespace ProjectFlow.Application.Common.Interfaces
 
         void RemoveProject(Project project);
 
+
+            Task<IReadOnlyList<Project>> GetAllAsync(
+    CancellationToken cancellationToken);
+
+
+
     }
 
 

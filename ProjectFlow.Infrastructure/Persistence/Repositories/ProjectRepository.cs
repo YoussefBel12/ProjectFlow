@@ -83,5 +83,17 @@ namespace ProjectFlow.Infrastructure.Persistence.Repositories
             _context.Projects.Remove(project);
         }
 
+
+        public async Task<IReadOnlyList<Project>> GetAllAsync(
+    CancellationToken cancellationToken)
+        {
+            return await _context.Projects
+                .AsNoTracking()
+                .OrderBy(project => project.CreatedAtUtc)
+                .ToListAsync(cancellationToken);
+        }
+
+
+
     }
 }

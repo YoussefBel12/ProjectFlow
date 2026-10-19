@@ -161,6 +161,9 @@ namespace ProjectFlow.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProjectId", "UserId")
+                        .IsUnique();
+
                     b.ToTable("ProjectMembers");
                 });
 
@@ -227,6 +230,15 @@ namespace ProjectFlow.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("WorkItemComments");
+                });
+
+            modelBuilder.Entity("ProjectFlow.Domain.Entities.ProjectMember", b =>
+                {
+                    b.HasOne("ProjectFlow.Domain.Entities.Project", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ProjectFlow.Domain.Entities.WorkItem", b =>
