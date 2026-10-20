@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProjectFlow.Api.Contracts.Tenants;
@@ -20,6 +21,7 @@ namespace ProjectFlow.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Register(
             RegisterTenantRequest request,
             CancellationToken cancellationToken)

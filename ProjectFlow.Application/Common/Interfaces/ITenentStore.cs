@@ -18,5 +18,10 @@ namespace ProjectFlow.Application.Common.Interfaces
         Task AddAsync(
             Tenant tenant,
             CancellationToken cancellationToken);
+
+
+        Task<List<Tenant>> GetActiveTenantsAsync(
+    CancellationToken cancellationToken);
+
     }
 }

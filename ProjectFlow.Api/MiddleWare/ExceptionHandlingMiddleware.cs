@@ -63,6 +63,29 @@ public sealed class ExceptionHandlingMiddleware
                     message = ex.Message
                 }));
         }
+
+
+
+
+        catch (InvalidOperationException ex)
+        {
+            _logger.LogWarning(ex, "Operation conflict.");
+
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            context.Response.ContentType = "application/json";
+
+            await context.Response.WriteAsync(
+                JsonSerializer.Serialize(new
+                {
+                    error = "Conflict",
+                    message = ex.Message
+                }));
+        }
+
+
+
+
+
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unhandled exception occurred.");

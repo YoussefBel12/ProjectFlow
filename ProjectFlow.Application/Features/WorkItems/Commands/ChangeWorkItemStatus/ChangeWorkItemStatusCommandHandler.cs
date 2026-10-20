@@ -10,17 +10,20 @@ public class ChangeWorkItemStatusCommandHandler
     : IRequestHandler<ChangeWorkItemStatusCommand, bool>
 {
     private readonly IProjectRepository _projectRepository;
+    private readonly IProjectMemberRepository _memberRepository;
     private readonly IProjectActivityRepository _projectActivityRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
 
     public ChangeWorkItemStatusCommandHandler(
         IProjectRepository projectRepository,
+        IProjectMemberRepository memberRepository,
         IProjectActivityRepository projectActivityRepository,
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork)
     {
         _projectRepository = projectRepository;
+        _memberRepository = memberRepository;
         _projectActivityRepository = projectActivityRepository;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
@@ -30,20 +33,27 @@ public class ChangeWorkItemStatusCommandHandler
         ChangeWorkItemStatusCommand request,
         CancellationToken cancellationToken)
     {
-        var userId = _currentUserService.UserId;
-
-        if (userId is null || userId == Guid.Empty)
-        {
-            throw new UnauthorizedAccessException(
-                "An authenticated user is required to change work-item status.");
-        }
-
         var workItem = await _projectRepository.GetWorkItemByIdAsync(
             request.Id,
             cancellationToken);
 
         if (workItem is null)
             return false;
+
+        var userId = _currentUserService.UserId;
+
+        if (!userId.HasValue)
+            throw new UnauthorizedAccessException(
+                "Authentication is required.");
+
+        var membership = await _memberRepository.GetByProjectAndUserAsync(
+            workItem.ProjectId,
+            userId.Value,
+            cancellationToken);
+
+        if (membership is null)
+            throw new UnauthorizedAccessException(
+                "You are not a member of this project.");
 
         workItem.ChangeStatus(request.Status);
 

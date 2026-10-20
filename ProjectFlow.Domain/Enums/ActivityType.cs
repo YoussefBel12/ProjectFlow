@@ -17,7 +17,8 @@ namespace ProjectFlow.Domain.Enums
         WorkItemStatusChanged = 4,
         WorkItemPriorityChanged = 5,
         WorkItemAssigned = 6,
-        CommentAdded = 7
+        CommentAdded = 7,
+        WorkItemUnassigned = 8
     }
 
 }

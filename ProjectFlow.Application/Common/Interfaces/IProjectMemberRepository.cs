@@ -35,5 +35,11 @@ public interface IProjectMemberRepository
     Guid userId,
     CancellationToken cancellationToken);
 
+
+
+    Task<IReadOnlyList<ProjectMember>> GetByUserIdAsync(
+    Guid userId,
+    CancellationToken cancellationToken);
+
 }
 

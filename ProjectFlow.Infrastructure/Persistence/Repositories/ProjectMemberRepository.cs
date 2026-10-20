@@ -79,6 +79,14 @@ public class ProjectMemberRepository : IProjectMemberRepository
             cancellationToken);
     }
 
-
+    public async Task<IReadOnlyList<ProjectMember>> GetByUserIdAsync(
+    Guid userId,
+    CancellationToken cancellationToken)
+    {
+        return await _context.ProjectMembers
+            .AsNoTracking()
+            .Where(member => member.UserId == userId)
+            .ToListAsync(cancellationToken);
+    }
 
 }

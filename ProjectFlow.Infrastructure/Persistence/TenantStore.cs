@@ -21,11 +21,13 @@ namespace ProjectFlow.Infrastructure.Persistence
         }
 
         public Task<Tenant?> GetBySlugAsync(
-            string slug,
-            CancellationToken cancellationToken)
+    string slug,
+    CancellationToken cancellationToken)
         {
+            var normalizedSlug = slug.Trim().ToLowerInvariant();
+
             return _context.Tenants.FirstOrDefaultAsync(
-                t => t.Slug == slug.ToLower(),
+                tenant => tenant.Slug == normalizedSlug,
                 cancellationToken);
         }
 
@@ -36,5 +38,19 @@ namespace ProjectFlow.Infrastructure.Persistence
             await _context.Tenants.AddAsync(tenant, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
         }
+
+
+
+        public Task<List<Tenant>> GetActiveTenantsAsync(
+    CancellationToken cancellationToken)
+        {
+            return _context.Tenants
+                .AsNoTracking()
+                .Where(tenant => tenant.IsActive)
+                .ToListAsync(cancellationToken);
+        }
+
+
+
     }
 }

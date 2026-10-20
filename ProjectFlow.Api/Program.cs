@@ -1,5 +1,6 @@
 
 using System.Text;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using ProjectFlow.Api.Middleware;
@@ -8,6 +9,8 @@ using ProjectFlow.Api.Swagger;
 using ProjectFlow.Application;
 using ProjectFlow.Application.Common.Interfaces;
 using ProjectFlow.Infrastructure;
+using ProjectFlow.Infrastructure.BackgroundJobs;
+using ProjectFlow.Infrastructure.Identity;
 using ProjectFlow.Infrastructure.Tenancy;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -91,7 +94,20 @@ builder.Services.AddAuthorization();
 var app = builder.Build();
 
 
+await IdentityRoleSeeder.SeedAsync(app.Services);
+
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseHangfireDashboard("/hangfire");
+
+    NotificationCleanupJobScheduler.Register();
+}
+
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+
 
 if (app.Environment.IsDevelopment())
 {

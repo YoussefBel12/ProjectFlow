@@ -41,4 +41,19 @@ public sealed class NotificationRepository : INotificationRepository
                 n => n.Id == notificationId,
                 cancellationToken);
     }
+
+
+
+    public async Task<int> DeleteReadNotificationsOlderThanAsync(
+    DateTime cutoffUtc,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.Notifications
+            .Where(notification =>
+                notification.ReadAtUtc.HasValue &&
+                notification.ReadAtUtc.Value < cutoffUtc)
+            .ExecuteDeleteAsync(cancellationToken);
+    }
+
+
 }

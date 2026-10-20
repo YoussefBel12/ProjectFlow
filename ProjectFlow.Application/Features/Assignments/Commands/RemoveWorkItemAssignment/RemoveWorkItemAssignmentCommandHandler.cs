@@ -47,6 +47,11 @@ public sealed class RemoveWorkItemAssignmentCommandHandler
         if (assignment == null)
             return false;
 
+
+        if (assignment.WorkItemId != request.WorkItemId)
+            return false;
+
+
         var workItem = await _projectRepository.GetWorkItemByIdAsync(
             assignment.WorkItemId,
             cancellationToken);
@@ -67,7 +72,7 @@ public sealed class RemoveWorkItemAssignmentCommandHandler
         var activity = new ProjectActivity(
             workItem.ProjectId,
             currentUserId.Value,
-            ActivityType.WorkItemAssigned,
+            ActivityType.WorkItemUnassigned,
             $"Removed user {assignment.UserId} from work item '{workItem.Title}'",
             assignment.WorkItemId);
 

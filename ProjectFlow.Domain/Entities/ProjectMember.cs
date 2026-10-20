@@ -29,6 +29,9 @@ namespace ProjectFlow.Domain.Entities
             if (userId == Guid.Empty)
                 throw new ArgumentException("User ID is required.");
 
+            if (!Enum.IsDefined(role))
+                throw new ArgumentOutOfRangeException(nameof(role));
+
             ProjectId = projectId;
             UserId = userId;
             Role = role;

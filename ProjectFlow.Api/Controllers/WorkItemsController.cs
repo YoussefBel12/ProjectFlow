@@ -1,5 +1,6 @@
 ﻿
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ProjectFlow.Api.Contracts.WorkItems;
 using ProjectFlow.Application.Features.WorkItems.Commands.ChangeWorkItemPriority;
@@ -17,6 +18,7 @@ namespace ProjectFlow.Api.Controllers
 
 
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class WorkItemsController : ControllerBase
     {

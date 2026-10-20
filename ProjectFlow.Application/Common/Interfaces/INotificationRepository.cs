@@ -15,4 +15,12 @@ public interface INotificationRepository
     Task<Notification?> GetByIdAsync(
         Guid notificationId,
         CancellationToken cancellationToken);
+
+
+
+    Task<int> DeleteReadNotificationsOlderThanAsync(
+    DateTime cutoffUtc,
+    CancellationToken cancellationToken = default);
+
+
 }

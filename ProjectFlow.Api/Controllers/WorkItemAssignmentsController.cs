@@ -58,7 +58,7 @@ public sealed class WorkItemAssignmentsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var removed = await _mediator.Send(
-            new RemoveWorkItemAssignmentCommand(assignmentId),
+            new RemoveWorkItemAssignmentCommand(workItemId, assignmentId),
             cancellationToken);
 
         if (!removed)
