@@ -1,5 +1,4 @@
 ﻿
-
 using MediatR;
 using ProjectFlow.Application.Common.Interfaces;
 using ProjectFlow.Domain.Entities;
@@ -12,17 +11,20 @@ public class CreateProjectCommandHandler
 {
     private readonly IProjectRepository _projectRepository;
     private readonly IProjectMemberRepository _projectMemberRepository;
+    private readonly IProjectActivityRepository _projectActivityRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICurrentUserService _currentUserService;
 
     public CreateProjectCommandHandler(
         IProjectRepository projectRepository,
         IProjectMemberRepository projectMemberRepository,
+        IProjectActivityRepository projectActivityRepository,
         IUnitOfWork unitOfWork,
         ICurrentUserService currentUserService)
     {
         _projectRepository = projectRepository;
         _projectMemberRepository = projectMemberRepository;
+        _projectActivityRepository = projectActivityRepository;
         _unitOfWork = unitOfWork;
         _currentUserService = currentUserService;
     }
@@ -49,10 +51,20 @@ public class CreateProjectCommandHandler
             userId.Value,
             ProjectRole.Manager);
 
+        var activity = new ProjectActivity(
+            project.Id,
+            userId.Value,
+            ActivityType.ProjectCreated,
+            $"Created project '{request.Name}'");
+
         await _projectRepository.AddAsync(project, cancellationToken);
 
         await _projectMemberRepository.AddAsync(
             membership,
+            cancellationToken);
+
+        await _projectActivityRepository.AddAsync(
+            activity,
             cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

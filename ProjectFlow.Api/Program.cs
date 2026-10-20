@@ -1,13 +1,14 @@
 
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using ProjectFlow.Api.Middleware;
+using ProjectFlow.Api.Services;
 using ProjectFlow.Api.Swagger;
 using ProjectFlow.Application;
+using ProjectFlow.Application.Common.Interfaces;
 using ProjectFlow.Infrastructure;
 using ProjectFlow.Infrastructure.Tenancy;
-using System.Text;
-using ProjectFlow.Api.Services;
-using ProjectFlow.Application.Common.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -88,6 +89,9 @@ builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {

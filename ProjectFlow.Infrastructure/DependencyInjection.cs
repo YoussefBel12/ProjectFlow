@@ -49,6 +49,12 @@ namespace ProjectFlow.Infrastructure
     .AddRoles<IdentityRole<Guid>>()
     .AddEntityFrameworkStores<IdentityDbContext>();
 
+
+            services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<
+    IProjectAssignmentRepository,
+    ProjectAssignmentRepository>();
+            services.AddScoped<IProjectActivityRepository, ProjectActivityRepository>();
             services.AddScoped<IProjectRepository, ProjectRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
