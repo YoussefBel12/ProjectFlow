@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ProjectFlow.Api.Contracts.ProjectMembers;
 using ProjectFlow.Application.Common.Interfaces;
 using ProjectFlow.Domain.Entities;
@@ -61,6 +62,9 @@ public class ProjectMembersController : ControllerBase
         if (request.UserId == Guid.Empty)
             return BadRequest("A valid user ID is required.");
 
+        if (!Enum.IsDefined(request.Role))
+            return BadRequest("Invalid project role.");
+
         var targetUser = await _userManager.FindByIdAsync(
             request.UserId.ToString());
 
@@ -77,12 +81,12 @@ public class ProjectMembersController : ControllerBase
         var member = new ProjectMember(
             projectId,
             request.UserId,
-            ProjectRole.Member);
+            request.Role);
 
         await _memberRepository.AddAsync(member, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        var response = ToResponse(member);
+        var response = await ToResponseAsync(member);
 
         return CreatedAtAction(
             nameof(GetMembers),
@@ -115,7 +119,73 @@ public class ProjectMembersController : ControllerBase
         var members = await _memberRepository.GetByProjectIdAsync(
             projectId, cancellationToken);
 
-        return Ok(members.Select(ToResponse));
+        var responses = new List<ProjectMemberResponse>();
+
+        foreach (var member in members)
+        {
+            responses.Add(await ToResponseAsync(member));
+        }
+
+        return Ok(responses);
+    }
+
+    [HttpGet("available-users")]
+    public async Task<IActionResult> SearchAvailableUsers(
+        Guid projectId,
+        [FromQuery] string? q,
+        CancellationToken cancellationToken)
+    {
+        var project = await _projectRepository.GetByIdAsync(
+            projectId, cancellationToken);
+
+        if (project is null)
+            return NotFound("Project not found.");
+
+        var userId = _currentUserService.UserId;
+
+        if (userId is null)
+            return Unauthorized();
+
+        var requester = await _memberRepository.GetByProjectAndUserAsync(
+            projectId, userId.Value, cancellationToken);
+
+        if (requester?.Role != ProjectRole.Manager)
+            return Forbid();
+
+        q = q?.Trim();
+
+        if (string.IsNullOrWhiteSpace(q) || q.Length < 2)
+            return BadRequest(
+                "Search must contain at least 2 characters.");
+
+        var existingMembers = await _memberRepository.GetByProjectIdAsync(
+            projectId, cancellationToken);
+
+        var existingUserIds = existingMembers
+            .Select(member => member.UserId)
+            .ToList();
+
+        var users = await _userManager.Users
+            .Where(user =>
+                !existingUserIds.Contains(user.Id) &&
+                (
+                    (user.DisplayName != null &&
+                     user.DisplayName.Contains(q)) ||
+                    (user.UserName != null &&
+                     user.UserName.Contains(q)) ||
+                    (user.Email != null &&
+                     user.Email.Contains(q))
+                ))
+            .OrderBy(user => user.DisplayName)
+            .Take(20)
+            .Select(user => new AvailableProjectUserResponse(
+                user.Id,
+                user.DisplayName,
+                user.UserName,
+                user.Email))
+            .ToListAsync(cancellationToken);
+
+        return Ok(users);
     }
 
     [HttpPatch("{memberId:guid}/role")]
@@ -218,14 +288,20 @@ public class ProjectMembersController : ControllerBase
         return NoContent();
     }
 
-    private static ProjectMemberResponse ToResponse(
+    private async Task<ProjectMemberResponse> ToResponseAsync(
         ProjectMember member)
     {
+        var user = await _userManager.FindByIdAsync(
+            member.UserId.ToString());
+
         return new ProjectMemberResponse(
             member.Id,
             member.ProjectId,
             member.UserId,
             member.Role,
-            member.CreatedAtUtc);
+            member.CreatedAtUtc,
+            user?.DisplayName,
+            user?.UserName,
+            user?.Email);
     }
 }

@@ -1,4 +1,8 @@
 <Solution>
+  <Project Path="projectflow-client/projectflow-client.esproj">
+    <Build />
+    <Deploy />
+  </Project>
   <Project Path="ProjectFlow.Api/ProjectFlow.Api.csproj" />
   <Project Path="ProjectFlow.Application/ProjectFlow.Application.csproj" />
   <Project Path="ProjectFlow.Domain/ProjectFlow.Domain.csproj" />

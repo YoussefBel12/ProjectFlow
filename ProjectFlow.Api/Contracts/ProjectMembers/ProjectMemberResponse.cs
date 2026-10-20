@@ -8,4 +8,7 @@ public sealed record ProjectMemberResponse(
     Guid ProjectId,
     Guid UserId,
     ProjectRole Role,
-    DateTime CreatedAtUtc);
+    DateTime CreatedAtUtc,
+    string? DisplayName,
+    string? UserName,
+    string? Email);

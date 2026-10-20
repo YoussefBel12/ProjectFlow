@@ -88,6 +88,18 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("ProjectFlowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:51483")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+
 
 builder.Services.AddAuthorization();
 
@@ -116,7 +128,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("ProjectFlowFrontend");
 // Resolve tenant before accessing tenant-specific resources.
 app.UseMiddleware<TenantResolutionMiddleware>();
 
